@@ -1,0 +1,42 @@
+[
+    {
+        "title": "📖 Wikipedia Editing Guide",
+        "url": "https://en.wikipedia.org/wiki/Help:Editing",
+        "description": "Official guide to editing Wikipedia articles"
+    },
+    {
+        "title": "🇮🇳 Hindi Wikipedia Guide",
+        "url": "https://hi.wikipedia.org/wiki/सहायता:संपादन",
+        "description": "हिंदी विकिपीडिया संपादन मार्गदर्शिका"
+    },
+    {
+        "title": "📷 Wikimedia Commons Upload",
+        "url": "https://commons.wikimedia.org/wiki/Commons:First_steps/Upload_form",
+        "description": "How to upload images to Wikimedia Commons"
+    },
+    {
+        "title": "📝 Citation Guide",
+        "url": "https://en.wikipedia.org/wiki/Wikipedia:Citing_sources",
+        "description": "Learn how to properly cite sources"
+    },
+    {
+        "title": "🎓 Wikipedia Training Modules",
+        "url": "https://dashboard.wikiedu.org/training",
+        "description": "Interactive training for new editors"
+    },
+    {
+        "title": "📚 Notability Guidelines",
+        "url": "https://en.wikipedia.org/wiki/Wikipedia:Notability",
+        "description": "What topics are suitable for Wikipedia"
+    },
+    {
+        "title": "🖼️ Image Guidelines",
+        "url": "https://commons.wikimedia.org/wiki/Commons:Licensing",
+        "description": "Understanding free licenses for images"
+    },
+    {
+        "title": "🔧 Visual Editor Tutorial",
+        "url": "https://www.mediawiki.org/wiki/Help:VisualEditor/User_guide",
+        "description": "Easy editing without learning markup"
+    }
+]

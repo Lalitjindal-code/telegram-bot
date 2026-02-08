@@ -1,0 +1,37 @@
+[
+    {
+        "title": "📷 Cultural Photowalk - Chanderi",
+        "date": "2026-02-20",
+        "time": "09:00",
+        "venue": "Chanderi Fort, Chanderi",
+        "description": "Capture heritage sites and upload to Wikimedia Commons"
+    },
+    {
+        "title": "🖥️ MediaWiki Training Workshop",
+        "date": "2026-02-25",
+        "time": "15:00",
+        "venue": "SATI Computer Lab 3",
+        "description": "Learn Wikipedia editing basics and markup language"
+    },
+    {
+        "title": "🌍 Wikipedia Edit-a-thon",
+        "date": "2026-03-01",
+        "time": "10:00",
+        "venue": "SATI Library Hall",
+        "description": "Collaborative editing session - bring your laptop!"
+    },
+    {
+        "title": "🎉 Wiki Club Monthly Meetup",
+        "date": "2026-03-08",
+        "time": "16:00",
+        "venue": "SATI Seminar Hall",
+        "description": "Monthly progress review and planning"
+    },
+    {
+        "title": "👩 Women's Day Wiki Campaign",
+        "date": "2026-03-08",
+        "time": "11:00",
+        "venue": "Online",
+        "description": "Create/improve articles about notable women"
+    }
+]
