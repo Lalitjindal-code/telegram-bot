@@ -2,6 +2,10 @@
 Wiki Club SATI Bot - Configuration
 """
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ============================================
 # BOT CONFIGURATION
@@ -11,6 +15,11 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 if not BOT_TOKEN:
     raise ValueError("❌ BOT_TOKEN environment variable is not set!")
+
+# Admin Configuration
+# Comma-separated list of Telegram User IDs
+admin_ids_str = os.environ.get("ADMIN_IDS", "8394056147")
+ADMIN_IDS = [int(x.strip()) for x in admin_ids_str.split(",") if x.strip().isdigit()]
 
 # Timezone for scheduler
 TIMEZONE = os.environ.get("TZ", "Asia/Kolkata")

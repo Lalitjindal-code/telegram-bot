@@ -17,6 +17,9 @@
 | `/links` | Quick Wikimedia links |
 | `/about` | About Wiki Club SATI |
 | `/help` | List all commands |
+| `/admin` | Admin dashboard (Admin only) |
+| `/addevent` | Add new event (Admin only) |
+| `/addresource` | Add resource (Admin only) |
 
 ## 🚀 Quick Start
 
@@ -77,7 +80,15 @@ schedula-bot/
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `BOT_TOKEN` | ✅ Yes | Telegram Bot Token from @BotFather |
+| `ADMIN_IDS` | ✅ Yes | Comma-separated Admin User IDs (e.g. `12345,67890`) |
 | `TZ` | ❌ No | Timezone (default: Asia/Kolkata) |
+
+## 🛡️ Admin Setup
+
+To use admin commands like `/addevent`, follow these steps:
+
+1. **Find your User ID**: Open Telegram and search for `@userinfobot`. Click `Start` to get your numeric ID (e.g., `123456789`).
+2. **Configure ID**: Add your ID to the `ADMIN_IDS` environment variable.
 
 ## ☁️ Deployment
 

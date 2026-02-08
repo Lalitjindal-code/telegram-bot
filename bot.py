@@ -15,15 +15,18 @@ import json
 import random
 import logging
 from datetime import datetime, timedelta
-from telegram import Update, InputFile
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram import Update, InputFile, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import (
+    Application, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
+)
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from keep_alive import keep_alive  # Import keep_alive
 
 # Import configuration
 from config import (
     BOT_TOKEN, TIMEZONE, CLUB_NAME, CLUB_TAGLINE, CLUB_COLLEGE, LINKS,
-    EVENTS_FILE, RESOURCES_FILE, TIPS_FILE, FACTS_FILE, USERS_FILE, LOGO_FILE
+    EVENTS_FILE, RESOURCES_FILE, TIPS_FILE, FACTS_FILE, USERS_FILE, LOGO_FILE,
+    ADMIN_IDS
 )
 
 # ============================================
@@ -493,8 +496,179 @@ _{CLUB_TAGLINE}_
 
 
 # ============================================
-# APPLICATION LIFECYCLE
+# ADMIN MANAGEMENT
 # ============================================
+
+# States for Conversations
+(
+    EVENT_TITLE, EVENT_DATE, EVENT_TIME, EVENT_VENUE, EVENT_DESC,
+    RESOURCE_TITLE, RESOURCE_URL, RESOURCE_DESC,
+    TIP_TEXT, FACT_TEXT
+) = range(10)
+
+async def check_admin(update: Update) -> bool:
+    """Check if user is admin"""
+    user_id = update.effective_user.id
+    if user_id not in ADMIN_IDS:
+        await update.message.reply_text(
+            "⛔ *Access Denied*\n"
+            "You are not authorized to use this command.",
+            parse_mode="Markdown"
+        )
+        return False
+    return True
+
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Cancel conversation"""
+    await update.message.reply_text(
+        "❌ Action cancelled.",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    return ConversationHandler.END
+
+# --- ADD EVENT CONVERSATION ---
+
+async def add_event_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    if not await check_admin(update): return ConversationHandler.END
+    await update.message.reply_text(
+        "📅 *Add New Event*\n\n"
+        "Please enter the *Event Title*:",
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    return EVENT_TITLE
+
+async def event_title(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['event_title'] = update.message.text
+    await update.message.reply_text("📅 Enter Date (YYYY-MM-DD):")
+    return EVENT_DATE
+
+async def event_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    date_text = update.message.text
+    try:
+        datetime.strptime(date_text, "%Y-%m-%d")
+        context.user_data['event_date'] = date_text
+        await update.message.reply_text("⏰ Enter Time (e.g. 14:00):")
+        return EVENT_TIME
+    except ValueError:
+        await update.message.reply_text("❌ Invalid format. Use YYYY-MM-DD (e.g. 2024-03-25):")
+        return EVENT_DATE
+
+async def event_time(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['event_time'] = update.message.text
+    await update.message.reply_text("📍 Enter Venue:")
+    return EVENT_VENUE
+
+async def event_venue(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['event_venue'] = update.message.text
+    await update.message.reply_text("📝 Enter Description (or type 'none'):")
+    return EVENT_DESC
+
+async def event_desc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    desc = update.message.text
+    if desc.lower() == 'none': desc = ""
+    
+    new_event = {
+        "title": context.user_data['event_title'],
+        "date": context.user_data['event_date'],
+        "time": context.user_data['event_time'],
+        "venue": context.user_data['event_venue'],
+        "description": desc
+    }
+    
+    events_data = load_json(EVENTS_FILE)
+    if not isinstance(events_data, list): events_data = []
+    events_data.append(new_event)
+    save_json(EVENTS_FILE, events_data)
+    
+    await update.message.reply_text(
+        "✅ *Event Added Successfully!*\n\n"
+        f"*{new_event['title']}*\n"
+        f"📅 {new_event['date']} at {new_event['time']}\n"
+        f"📍 {new_event['venue']}",
+        parse_mode="Markdown"
+    )
+    return ConversationHandler.END
+
+# --- ADD RESOURCE CONVERSATION ---
+
+async def add_resource_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    if not await check_admin(update): return ConversationHandler.END
+    await update.message.reply_text("📚 *Add Resource*\n\nEnter Title:")
+    return RESOURCE_TITLE
+
+async def resource_title(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['res_title'] = update.message.text
+    await update.message.reply_text("🔗 Enter URL:")
+    return RESOURCE_URL
+
+async def resource_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['res_url'] = update.message.text
+    await update.message.reply_text("📝 Enter Description:")
+    return RESOURCE_DESC
+
+async def resource_desc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    new_res = {
+        "title": context.user_data['res_title'],
+        "url": context.user_data['res_url'],
+        "description": update.message.text
+    }
+    
+    data = load_json(RESOURCES_FILE)
+    if not isinstance(data, list): data = []
+    data.append(new_res)
+    save_json(RESOURCES_FILE, data)
+    
+    await update.message.reply_text("✅ Resource added!", parse_mode="Markdown")
+    return ConversationHandler.END
+
+# --- ADD TIP/FACT ---
+
+async def add_tip_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    if not await check_admin(update): return ConversationHandler.END
+    await update.message.reply_text("💡 Enter new Tip:")
+    return TIP_TEXT
+
+async def save_tip(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    data = load_json(TIPS_FILE)
+    if not isinstance(data, list): data = []
+    data.append(update.message.text)
+    save_json(TIPS_FILE, data)
+    await update.message.reply_text("✅ Tip added!")
+    return ConversationHandler.END
+
+async def add_fact_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    if not await check_admin(update): return ConversationHandler.END
+    await update.message.reply_text("🌐 Enter new Fact:")
+    return FACT_TEXT
+
+async def save_fact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    data = load_json(FACTS_FILE)
+    if not isinstance(data, list): data = []
+    data.append(update.message.text)
+    save_json(FACTS_FILE, data)
+    await update.message.reply_text("✅ Fact added!")
+    return ConversationHandler.END
+
+async def admin_dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show admin commands"""
+    if not await check_admin(update): return
+    
+    users = load_json(USERS_FILE)
+    user_count = len(users.get('users', [])) if isinstance(users, dict) else 0
+    
+    text = f"""
+🛡️ *Admin Dashboard*
+
+👥 Users: {user_count}
+
+*Commands:*
+• /addevent - Add new event
+• /addresource - Add learning resource
+• /addtip - Add editing tip
+• /addfact - Add wiki fact
+    """
+    await update.message.reply_text(text, parse_mode="Markdown")
 
 async def post_init(application):
     """Start scheduler after event loop is running"""
@@ -535,6 +709,51 @@ def main():
     app.add_handler(CommandHandler("fact", fact))
     app.add_handler(CommandHandler("links", links))
     app.add_handler(CommandHandler("about", about))
+    
+    # Admin Handlers
+    app.add_handler(CommandHandler("admin", admin_dashboard))
+    
+    # Add Event Conversation
+    app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("addevent", add_event_start)],
+        states={
+            EVENT_TITLE: [MessageHandler(filters.TEXT & ~filters.COMMAND, event_title)],
+            EVENT_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, event_date)],
+            EVENT_TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, event_time)],
+            EVENT_VENUE: [MessageHandler(filters.TEXT & ~filters.COMMAND, event_venue)],
+            EVENT_DESC: [MessageHandler(filters.TEXT & ~filters.COMMAND, event_desc)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)]
+    ))
+    
+    # Add Resource Conversation
+    app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("addresource", add_resource_start)],
+        states={
+            RESOURCE_TITLE: [MessageHandler(filters.TEXT & ~filters.COMMAND, resource_title)],
+            RESOURCE_URL: [MessageHandler(filters.TEXT & ~filters.COMMAND, resource_url)],
+            RESOURCE_DESC: [MessageHandler(filters.TEXT & ~filters.COMMAND, resource_desc)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)]
+    ))
+    
+    # Add Tip Conversation
+    app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("addtip", add_tip_start)],
+        states={
+            TIP_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_tip)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)]
+    ))
+    
+    # Add Fact Conversation
+    app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("addfact", add_fact_start)],
+        states={
+            FACT_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_fact)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)]
+    ))
     
     logger.info("🤖 Bot is running...")
     
