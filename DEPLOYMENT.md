@@ -46,21 +46,31 @@ Scroll down to **Environment Variables** and add:
 
 ---
 
-## ⚡ Step 2: Keep It Alive (Important!)
+## ⚡ Step 2: Keep It Alive (UptimeRobot Guide)
 
-Render's Free Web Services "sleep" after 15 minutes of inactivity. To prevent this, use a free monitoring service to "ping" your bot.
+Render's Free Web Services "sleep" after 15 minutes of inactivity. To prevent this, use **UptimeRobot** (free) to "ping" your bot every 5 minutes.
 
-1. Once deployed, Render will give you a URL (e.g., `https://schedula-bot.onrender.com`).
-2. Go to **[UptimeRobot](https://uptimerobot.com/)** (it's free).
-3. Click **Add New Monitor**.
-4. Settings:
-   - **Monitor Type**: HTTP(s)
-   - **Friendly Name**: Schedula Bot
-   - **URL**: `https://schedula-bot.onrender.com` (Your Render URL)
-   - **Monitoring Interval**: 5 minutes
-5. Click **Create Monitor**.
+### 2.1 Sign Up / Login
+1. Go to **[uptimerobot.com](https://uptimerobot.com/)**.
+2. Click **"Register for FREE"**.
+3. Enter name, email, and password.
+4. Verify your email (check spam folder if needed).
+5. **Login** to your dashboard.
 
-✅ **Done!** UptimeRobot will ping your bot every 5 minutes, keeping it awake 24/7 for free.
+### 2.2 Create Monitor
+1. Click the big green button **"+ Add New Monitor"**.
+2. **Monitor Type**: Select `HTTP(s)`.
+3. **Friendly Name**: `Schedula Bot` (or anything you like).
+4. **URL (or IP)**: Paste your Render URL (e.g., `https://schedula-bot.onrender.com`).
+   * *Find this URL at the top of your Render service page (under the name).*
+5. **Monitoring Interval**: Change to `5 minutes` (Important!).
+6. **Monitor Timeout**: Leave as `30 seconds`.
+7. **Select "Alert Contacts To Notify"**: Check your email (optional, if you want down alerts).
+8. Click **"Create Monitor"** (and "Create Monitor" again if asked).
+
+### 2.3 Verify
+- You should see your monitor listed on the left as "UP" (green) after a few minutes.
+- This means UptimeRobot is visiting your bot every 5 mins, keeping it awake 24/7! 🎉
 
 ---
 
