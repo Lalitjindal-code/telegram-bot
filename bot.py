@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from telegram import Update, InputFile
 from telegram.ext import Application, CommandHandler, ContextTypes
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from keep_alive import keep_alive  # Import keep_alive
 
 # Import configuration
 from config import (
@@ -513,6 +514,7 @@ async def post_shutdown(application):
 
 def main():
     """Main function to run the bot"""
+    keep_alive()  # Start the web server to keep bot alive
     logger.info(f"🚀 Starting {CLUB_NAME} Bot...")
     
     app = (
