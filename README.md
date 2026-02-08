@@ -106,4 +106,4 @@ This project is open source, promoting the Wikimedia mission of free knowledge.
 
 ---
 
-*Made with ❤️ by Wiki Club SATI | Promoting Open Knowledge 📚*
+*Made with ❤️ by lalit jindal | Promoting Open Knowledge 📚*
